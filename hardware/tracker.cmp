@@ -1,0 +1,136 @@
+Cmp-Mod V01 Created by CvPcb (2013-jul-07)-stable date = Tue 21 Jul 2015 09:22:18 PM CEST
+
+BeginCmp
+TimeStamp = /55ABA96C;
+Reference = C1;
+ValeurCmp = 100u;
+IdModule  = c_tant_D;
+EndCmp
+
+BeginCmp
+TimeStamp = /55ABA9B2;
+Reference = C2;
+ValeurCmp = 0.1uF;
+IdModule  = SM0603_Capa;
+EndCmp
+
+BeginCmp
+TimeStamp = /55ABB7C1;
+Reference = D1;
+ValeurCmp = DIODE;
+IdModule  = SM1206;
+EndCmp
+
+BeginCmp
+TimeStamp = /55ABC91D;
+Reference = D2;
+ValeurCmp = LED;
+IdModule  = LED-0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /55AE8DAB;
+Reference = D3;
+ValeurCmp = LED;
+IdModule  = LED-0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /55ABAB6A;
+Reference = P1;
+ValeurCmp = Motor;
+IdModule  = PIN_ARRAY_4x1;
+EndCmp
+
+BeginCmp
+TimeStamp = /55ABAD9B;
+Reference = P2;
+ValeurCmp = ISP;
+IdModule  = pin_array_3x2;
+EndCmp
+
+BeginCmp
+TimeStamp = /55ABB7B2;
+Reference = P3;
+ValeurCmp = Logic Power;
+IdModule  = PIN_ARRAY_2X1;
+EndCmp
+
+BeginCmp
+TimeStamp = /55ABB8F5;
+Reference = P4;
+ValeurCmp = Motor Power;
+IdModule  = Power;
+EndCmp
+
+BeginCmp
+TimeStamp = /55ABD39E;
+Reference = Q1;
+ValeurCmp = IRML9301TRPbF;
+IdModule  = SOT23GDS;
+EndCmp
+
+BeginCmp
+TimeStamp = /55AE8D9C;
+Reference = R1;
+ValeurCmp = 470;
+IdModule  = SM0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /55ABC93C;
+Reference = R2;
+ValeurCmp = 1k;
+IdModule  = SM0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /55AE8C29;
+Reference = R3;
+ValeurCmp = 10k;
+IdModule  = SM0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /55AE8C38;
+Reference = R4;
+ValeurCmp = 10k;
+IdModule  = SM0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /55AE8C10;
+Reference = SW1;
+ValeurCmp = Direction;
+IdModule  = FSM-SM;
+EndCmp
+
+BeginCmp
+TimeStamp = /55AE8C01;
+Reference = SW2;
+ValeurCmp = Speed;
+IdModule  = FSM-SM;
+EndCmp
+
+BeginCmp
+TimeStamp = /55ABA94B;
+Reference = U1;
+ValeurCmp = MC78L05A;
+IdModule  = so-8;
+EndCmp
+
+BeginCmp
+TimeStamp = /55ABA5C6;
+Reference = U2;
+ValeurCmp = ATTINY85;
+IdModule  = SO8N;
+EndCmp
+
+BeginCmp
+TimeStamp = /55ABA89C;
+Reference = U3;
+ValeurCmp = A4988;
+IdModule  = A4988;
+EndCmp
+
+EndListe
