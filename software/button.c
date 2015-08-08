@@ -10,10 +10,11 @@ unsigned char	button_state(unsigned char button);
 void	button_setup(void) __attribute__ ((constructor));
 
 void	button_setup(void) {
-	// XXX initialize ports
+	PORTB |= _BV(PORTB0) | _BV(PORTB1);
+	DDRB &= ~(_BV(DDRB0) | _BV(DDRB1));
 }
 
 unsigned char	button_state(unsigned char button) {
-	// XXX implementation missing
+	return (PINB & _BV(button)) ? 0 : 1;
 	return 0;
 }

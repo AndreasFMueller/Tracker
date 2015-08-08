@@ -12,6 +12,8 @@ void	direction_setup(void) __attribute__ ((constructor));
 
 void	direction_setup(void) {
 	// XXX initialize ports
+	PORTB |= _BV(PORTB2);
+	DDRB |= _BV(DDRB2);
 
 	// set static variables
 	southern_mode = 0;
@@ -28,9 +30,11 @@ void	direction_set(unsigned char direction) {
 		current_direction = (direction) ? 1 : 0;
 	}
 	if (current_direction) {
-		// XXX set direction pin to 0
+		// set direction pin to 0
+		PORTB &= ~_BV(PORTB2);
 	} else {
-		// XXX set direction pin to 1
+		// set direction pin to 1
+		PORTB |= _BV(PORTB2);
 	}
 }
 

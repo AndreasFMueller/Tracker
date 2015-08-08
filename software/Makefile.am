@@ -23,9 +23,9 @@ tracker.eeprom: tracker
 
 lib_LTLIBRARIES = libtracker.la
 
-noinst_HEADERS = led.h button.h timer.h direction.h
+noinst_HEADERS = button.h timer.h direction.h
 
-libtracker_la_SOURCES = led.c button.c timer.c direction.c
+libtracker_la_SOURCES = button.c timer.c direction.c
 
 tracker_SOURCES = tracker.c
 tracker_DEPENDENCIES = libtracker.la

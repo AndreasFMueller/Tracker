@@ -19,16 +19,16 @@ static void     timer_setup() __attribute__ ((constructor));
 static void	timer_setup() {
 	// initialize the timer
 	TCNT1 = 0;
-	OCR1A = 10000;
-	TCCR1 = (1 << COM1A0) | (0 << CS10);
+	OCR1B = 10000;
+	TCCR1 = (1 << COM1B0) | (0 << CS10);
 }
 
 void	timer_start() {
-	TCCR1 = (1 << COM1A0) | (1 << CS10);
+	TCCR1 = (1 << COM1B0) | (1 << CS10);
 }
 
 void	timer_stop() {
-	TCCR1 = (1 << COM1A0) | (0 << CS10);
+	TCCR1 = (1 << COM1B0) | (0 << CS10);
 }
 
 /**
