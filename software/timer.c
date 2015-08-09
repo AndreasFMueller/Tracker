@@ -19,34 +19,100 @@
 #include <avr/sfr_defs.h>
 #include <avr/wdt.h>
 
+/*
+ * because we only have two 8 bit timers on this device, we need to employ
+ * two different modes. The slow mode is uses a much larger prescaler value.
+ */
+#define MODE_FAST	1
+#define MODE_SLOW	0
+static unsigned char	speed_mode = MODE_SLOW;
+
+/*
+ * The Timer register TCCR1 controls the clock source and the timer mode,
+ * and since we want to start/stop the timer, we will have to repeatedly
+ * change the value. The parameters in the following two constants
+ * select CTC.
+ * The fast mode uses the prescaler 8, while the slow mode uses prescaler 
+ * 1024
+ */
+#define TIMER_STOP	(1 << CTC1) | (0 << COM1A0) | ( 0 << CS10)
+#define TIMER_FAST	(1 << CTC1) | (0 << COM1A0) | (10 << CS10)
+#define TIMER_SLOW	(1 << CTC1) | (0 << COM1A0) | ( 4 << CS10)
+
+#define	PRESCALER_FAST	8
+#define PRESCALER_SLOW	512
+
+
+/*
+ * The following variables are used to implement ramping up and down
+ * speed and reversing the direction.
+ */
 static unsigned short	current_speed = 0;
-static unsigned short	target_speed = 0;
 static unsigned char	current_direction = 0;
+
+static unsigned short	target_speed = 0;
 static unsigned char	target_direction = 0;
 
+/**
+ * \brief initialize the two timers
+ */
 static void     timer_setup() __attribute__ ((constructor));
 
-static void	timer_setup() {
-	// initialize the timer1
-	TCNT1 = 0;
-	unsigned short	speed = 65535;
-	OCR1B = speed; // slowest possible stepping rate, 2 Hz
-	TCCR1 = (1 << COM1B0) | (0 << CS10); // timer stopped
+/**
+ * \brief Compute the value for the compare match register
+ *
+ * If this function returns 0, then the motor should be turned off
+ */
+static inline unsigned char	speed_value(unsigned short v) {
+	unsigned long	t = v;
+	switch (speed_mode) {
+	case MODE_FAST:
+		t *= PRESCALER_FAST;
+		break;
+	case MODE_SLOW:
+		t *= PRESCALER_SLOW;
+		break;
+	}
+	t = F_CPU / t;
+	if (t > 255) {
+		return 0;
+	}
+	return t;
+}
 
-	// initialize the timer0
+static void	timer_setup() {
+	/*
+ 	 * 8 bit Timer1 is used to generate the impulses for the stepper motor
+	 * controller. We use the CTC (Clear Timer on compare match) to
+	 * vary the frequency of the pulses. The pulses are expected on 
+	 * output OC1B = PB4
+ 	 */
+	TCNT1 = 0;
+	OCR1A = 255; // slowest speed
+	OCR1B = 0; // slowest possible stepping rate, 2 Hz
+	GTCCR = (1 << COM1B0);
+	TCCR1 = TIMER_STOP; // timer stopped
+
+	/*
+	 * Timer0 is used to generate 100Hz interrupts
+	 *
+ 	 * to get 100 Hz, prescale the system clock of 1000000 by 64
+	 * and divide it with OCR1C by 156, this gives a frequency of
+	 * 1000000 / (64 * 156) = 100.16 Hz
+	 */
 	TCNT0 = 0;
+	TCCR0A = (0 << COM0A0) | (2 << COM0B0) | (2 << WGM00);
+	TCCR0B = (0 << WGM02) | (3 << CS00);
 	OCR0A = 156;	// gives 100.16Hz 
-	TCCR0A = (0 << COM0A0) | (2 << WGM00);
-	TCCR0B = (0 << WGM02) | (3 << CS00); // prescaler clk/64
-	TIMSK |= _BV(OCIE1A); // enable timer interrupt
+	TIMSK |= _BV(OCIE0A); // enable timer interrupt
 }
 
 void	timer_start() {
-	TCCR1 = (1 << COM1B0) | (4 << CS10);	// prescaler /4
+	TCCR1 = (speed_mode == MODE_FAST) ? TIMER_FAST : TIMER_SLOW;
 }
 
 void	timer_stop() {
-	TCCR1 = (1 << COM1B0) | (0 << CS10);	// timer stopped
+	TCCR1 = TIMER_STOP;	// timer stopped
 }
 
 /**
@@ -62,36 +128,56 @@ void	timer_speed(unsigned short speed, unsigned char direction) {
 
 #define	speed_step	0
 
-static const unsigned long	frequency = 1000000 / 4;
-
 static void	timer_set(unsigned short speed, unsigned short direction) {
 	current_direction = direction;
 	current_speed = speed;
+
 	// compute the values to be used in the timer configuration registers
 	// set timer configuration
 	direction_set(current_direction);
-	unsigned long	speedvalue = frequency / current_speed;
-	if (speedvalue > 65535) {
-		OCR1B = (unsigned short)65535;
+	unsigned char	speedvalue = speed_value(current_speed);
+	if (speedvalue == 0) {
+		OCR1A = 0;
 		timer_stop();
 	} else {
-		unsigned short	s = speedvalue;
-		OCR1B = s;
+		OCR1A = speedvalue;
 		timer_start();
 	}
 }
 
-void	timer_update() {
-	// if the current speed is 0, then we can switch to the direction
-	// of the target speed
+/*
+ * 
+ */
+static inline void	timer_update() {
+	// if the current speed is 0, then we can switch direction and mode
+	// possibly the speed mode
 	if (0 == current_speed) {
+		// find out whether we go to the target speed in fast or
+		// slow mode. In fast mode, we have to slowly speed the
+		// motor up
+		speed_mode = (target_speed > 255) ? MODE_FAST : MODE_SLOW;
+		
+		// if we are in slow mode, we go directly to the target
+		// speed
+		if (speed_mode == MODE_SLOW) {
+			timer_set(target_direction, target_speed);
+		}
+
+		// do the first step in the direction of the target speed
 		timer_set(target_direction, speed_step);
 		return;
 	}
-	// handle slow down
+
+	// handle slow down: we are in slow down if the target
+	// direction is different from the current direction.
 	if ((target_direction != current_direction)
 		|| (target_speed < current_speed)) {
-		if (current_speed > speed_step) {
+		// if we are in slow mode, we just stop the motor, in the
+		// next iteration we will then set the new speed mode and
+		// speed up the motor again
+		if (speed_mode == MODE_SLOW) {
+			timer_set(0, current_direction);
+		} else if (current_speed > speed_step) {
 			timer_set(current_speed - speed_step,
 				current_direction);
 		} else {
@@ -99,6 +185,7 @@ void	timer_update() {
 		}
 		return;
 	}
+
 	// handle speeding up
 	if (current_speed < target_speed) {
 		if (current_speed + speed_step < target_speed) {
@@ -109,15 +196,13 @@ void	timer_update() {
 	}
 }
 
-static unsigned char	debounce_counter = 0;
-static unsigned char	track_button_state = 0;
-static unsigned char	rewind_button_state = 0;
+static inline unsigned char	debounce_counter = 0;
 
-unsigned char	toggle(unsigned char x) {
+static inline unsigned char	toggle(unsigned char x) {
 	return (x) ? 0 : 1;
 }
 
-void	button_update() {
+static inline void	button_update() {
 	if (debounce_counter--) {
 		return;
 	}
@@ -125,6 +210,7 @@ void	button_update() {
 		track_button_state = toggle(track_button_state);
 		if (track_button_state) {
 			debounce_counter = 10;
+			speed_mode = MODE_SLOW;
 			timer_speed(SPEED_TRACKING, DIRECTION_FORWARD);
 		}
 	}
@@ -132,6 +218,7 @@ void	button_update() {
 		rewind_button_state = toggle(rewind_button_state);
 		if (rewind_button_state) {
 			debounce_counter = 10;
+			speed_mode = MODE_FAST;
 			timer_speed(SPEED_REWIND, DIRECTION_BACKWARD);
 		}
 	}

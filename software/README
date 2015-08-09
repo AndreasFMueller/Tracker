@@ -1,6 +1,24 @@
 README for the tracker project
 ------------------------------
 
-The tracker is a small stepper motor controller used to drive a 
-a sky tracker.
+The tracker is a small stepper motor controller used to drive a a
+sky tracker.
+
+The tracker works in two speed modes. While tracking, it advances
+the screw shaft in such a way as to travel for 1 degree every four
+minutes, in rewind mode it moves as fast as the stepper motor allows,
+i.e. at about 400 steps per second.
+
+The pitch of the screw is 0.7mm per turn. For a radius of 250mm,
+we have to rotate the screw at a speed of 0.0259721614 rotations
+per second. NMEA-17 motors typically have 200 steps per revolution,
+thus the driver must step the motor at 5.1944 steps per seccond.
+
+The stepper drivers are configured for 16th step microstepping,
+which means that in slow speed, pulses at 83.1Hz are needed, and
+in fast speed, we attempt to move the motor at 400 steps per second,
+i.e.  with a frequence of 6.4kHz.
+
+
+
 
