@@ -126,7 +126,7 @@ void	timer_speed(unsigned short speed, unsigned char direction) {
 	target_speed = speed;
 }
 
-#define	speed_step	0
+#define	speed_step	100
 
 static void	timer_set(unsigned short speed, unsigned short direction) {
 	current_direction = direction;
