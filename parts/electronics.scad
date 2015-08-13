@@ -117,8 +117,8 @@ module top_part() {
 				screwhole();
 			// opening for the power connector
 			translate([width/2, -10, top_height/2 - 4.99])
-				cube([20, 10, 10], center = true);
-			// opening for 
+				cube([20, 10, 10 + 3], center = true);
+			// opening for motor cable
 			translate([width/2,  9, 1])
 				cube([20, 11, top_height], center = true);
 			// openings for buttons

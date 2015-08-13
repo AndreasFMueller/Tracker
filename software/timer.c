@@ -126,7 +126,7 @@ void	timer_speed(unsigned short speed, unsigned char direction) {
 	target_speed = speed;
 }
 
-#define	speed_step	100
+#define	speed_step	(SPEED_REWIND / 100)
 
 static void	timer_set(unsigned short speed, unsigned short direction) {
 	current_direction = direction;
@@ -146,7 +146,10 @@ static void	timer_set(unsigned short speed, unsigned short direction) {
 }
 
 /*
- * 
+ * Timer related work to be done during the tiemr interrupt
+ *
+ * This is an inline function because there is no need to call it from
+ * any other place than from the interrupt handler
  */
 static inline void	timer_update() {
 	// if the current speed is 0, then we can switch direction and mode
@@ -196,34 +199,51 @@ static inline void	timer_update() {
 	}
 }
 
-static inline unsigned char	debounce_counter = 0;
+#define DEBOUNCE_TIME	10
+
+static unsigned char	debounce_counters[2] = { 0, 0 };
 
 static inline unsigned char	toggle(unsigned char x) {
 	return (x) ? 0 : 1;
 }
 
+/*
+ * The button related work to be done during the timer interrupt
+ * 
+ * 
+ */
 static inline void	button_update() {
-	if (debounce_counter--) {
-		return;
-	}
-	if (track_button_state != button_state(BUTTON_TRACK)) {
-		track_button_state = toggle(track_button_state);
-		if (track_button_state) {
-			debounce_counter = 10;
-			speed_mode = MODE_SLOW;
-			timer_speed(SPEED_TRACKING, DIRECTION_FORWARD);
+	if (debounce_counters[0]--) {
+		// ignore state changes on the track button
+	} else {
+		if (track_button_state != button_state(BUTTON_TRACK)) {
+			track_button_state = toggle(track_button_state);
+			if (track_button_state) {
+				debounce_counters[0] = DEBOUNCE_TIME;
+				speed_mode = MODE_SLOW;
+				timer_speed(SPEED_TRACKING, DIRECTION_FORWARD);
+			}
 		}
 	}
-	if (rewind_button_state != button_state(BUTTON_REWIND)) {
-		rewind_button_state = toggle(rewind_button_state);
-		if (rewind_button_state) {
-			debounce_counter = 10;
-			speed_mode = MODE_FAST;
-			timer_speed(SPEED_REWIND, DIRECTION_BACKWARD);
+	if (debounce_counters[1]--) {
+		// ignore state changes on the rewind button
+	} else {
+		if (rewind_button_state != button_state(BUTTON_REWIND)) {
+			rewind_button_state = toggle(rewind_button_state);
+			if (rewind_button_state) {
+				debounce_counters[1] = DEBOUNCE_TIME;
+				speed_mode = MODE_FAST;
+				timer_speed(SPEED_REWIND, DIRECTION_BACKWARD);
+			}
 		}
 	}
 }
 
+/*
+ * The timer interupt checks for changes in the button state and
+ * also whether we have to change the speed or direction of the
+ * stepper motor
+ */
 ISR(TIMER0_COMPA_vect) {
 	button_update();
 	timer_update();

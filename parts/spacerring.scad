@@ -3,7 +3,7 @@
  *
  * (c) 2015 Prof Dr Andreas Mueller, Hochschule Rapperswil
  */
-height = 5;
+height = 5.5;
 width = 2.5;
 innerradius = 9.5 / 2;
 
