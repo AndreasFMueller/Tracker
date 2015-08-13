@@ -1,5 +1,5 @@
 /*
- * guiderport.c -- main function of the guiderport firmware
+ * tracker.c -- main function of the tracker firmware
  *
  * (c) 2015 Prof Dr Andreas Müller, Hochschule Rapperswil
  */
@@ -7,27 +7,29 @@
 #include <config.h>
 #endif /* HAVE_CONFIG_H */
 #include <avr/wdt.h>
-#include <led.h>
 #include <timer.h>
 #include <button.h>
 #include <direction.h>
 #include <util/delay.h>
 
 int	main(int argc, char *argv[]) {
-	led_on(LED1);
-	led_on(LED2);
 	_delay_ms(1000);
-	led_off(LED1);
-	led_off(LED2);
-	// check whether the track button is pressed, which would mean that
+	// check whether a button is pressed, which would mean that
 	// we start up in southern hemisphere mode
-	if (button_state(BUTTON_TRACK)) {
-		// XXX switch to southern hemisphere mode
+	if (button_state(BUTTON_TRACK) || button_state(BUTTON_REWIND)) {
+		switch (DEFAULT_DIRECTION) {
+		case DIRECTION_FORWARD:
+			direction_default(DIRECTION_BACKWARD);
+			break;
+		case DIRECTION_BACKWARD:
+			direction_default(DIRECTION_FORWARD);
+			break;
+		}
 	}
 
 	// initialize the timer with the initial tracking speed
 	timer_start();
-	timer_speed(SPEED_TRACKING);
+	timer_speed(SPEED_TRACKING, DIRECTION_FORWARD);
 
 	// guider port main function, infinite loop
 	for (;;) {

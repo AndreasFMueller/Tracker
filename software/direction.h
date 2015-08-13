@@ -6,10 +6,11 @@
 #ifndef _direction_h
 #define _direction_h
 
-#define DIRECTION_FORWARD
-#define DIRECTION_BACKWARD
+#define DIRECTION_FORWARD	1
+#define DIRECTION_BACKWARD	0
+#define DEFAULT_DIRECTION	DIRECTION_FORWARD
 
-extern void	direction_southern(unsigned char direction);
+extern void	direction_default(unsigned char direction);
 extern void	direction_set(unsigned char direction);
 
 #endif /* _direction_h */

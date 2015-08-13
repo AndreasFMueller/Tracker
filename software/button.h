@@ -6,8 +6,11 @@
 #ifndef _button_h
 #define _button_h
 
-#define BUTTON_TRACK	PB0
-#define BUTTON_REWIND	PB1
+#define BUTTON_TRACK	PINB0
+#define BUTTON_REWIND	PINB1
+
+extern unsigned char   track_button_state;
+extern unsigned char   rewind_button_state;
 
 extern unsigned char button_state(unsigned char button);
 
