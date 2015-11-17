@@ -6,8 +6,21 @@
 #ifndef _direction_h
 #define _direction_h
 
+/**
+ * \brief Direction constant for forward motion
+ */
 #define DIRECTION_FORWARD	1
+
+/**
+ * \brief Direction constant for backward motion
+ */
 #define DIRECTION_BACKWARD	0
+
+/**
+ * \brief Default direction is forward
+ *
+ * This may be changed on the southern hemisphere
+ */
 #define DEFAULT_DIRECTION	DIRECTION_FORWARD
 
 extern void	direction_default(unsigned char direction);

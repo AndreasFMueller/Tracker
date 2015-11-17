@@ -1,1 +1,3 @@
+CFLAGS="-O2 -Wall -g"
+export CFLAGS
 ./configure --host=avr

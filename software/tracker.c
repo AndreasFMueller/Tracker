@@ -7,13 +7,22 @@
 #include <config.h>
 #endif /* HAVE_CONFIG_H */
 #include <avr/wdt.h>
+#include <avr/interrupt.h>
 #include <timer.h>
 #include <button.h>
 #include <direction.h>
 #include <util/delay.h>
 
+/**
+ * \brief Main function for the tracker
+ */
 int	main(int argc, char *argv[]) {
+	// turn on the direction LED
+	PORTB &= ~_BV(PORTB2);
+
+	// wait one second, then read the button state
 	_delay_ms(1000);
+
 	// check whether a button is pressed, which would mean that
 	// we start up in southern hemisphere mode
 	if (button_state(BUTTON_TRACK) || button_state(BUTTON_REWIND)) {
@@ -30,6 +39,9 @@ int	main(int argc, char *argv[]) {
 	// initialize the timer with the initial tracking speed
 	timer_start();
 	timer_speed(SPEED_TRACKING, DIRECTION_FORWARD);
+
+	// enable interrupts
+	sei();
 
 	// guider port main function, infinite loop
 	for (;;) {

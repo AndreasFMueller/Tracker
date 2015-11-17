@@ -44,14 +44,14 @@ tracker_LDFLAGS = -ltracker
 #
 # high fuse byte
 # --------------
-# DWEN          = 1             DebugWIRE enabled (no)
-# RSTDSBL       =  1            external reset disabled (no)
+# RSTDSBL       = 1             external reset disabled (no)
+# DWEN          =  1            DebugWIRE enabled (no)
 # SPIEN         =   0           Serial program and data download enabled (yes)
 # WDTON         =    1          Watchdog timer always on (no)
-# EESAVE        =     0         EEPROM preserved on chip erase (yes)
+# EESAVE        =     1         EEPROM preserved on chip erase (yes)
 # BODLEVEL2..0  =      111      BOD disabled
 #                 ________
-#                 11010111      = 0xd7
+#                 11011111      = 0xdf
 #
 #
 # extended fuse byte
@@ -61,19 +61,22 @@ tracker_LDFLAGS = -ltracker
 #                 00000011      = 0x03
 #
 # original fuse settings reported by avrdude
-# lfuse reads as 5E
-# hfuse reads as D9
-# efuse reads as F4
+# lfuse reads as 62
+# hfuse reads as DF
+# efuse reads as FF
+
+readfuses:
+	$(AVRDUDE) -U lfuse:r:-:i -U hfuse:r:-:i
 
 # The fuse command below does not set the extended fuses, as there is no
 # need to change the factory settings
 fuses:
-	$(AVRDUDE) -U lfuse:w:0x62:m -U hfuse:w:0xd7:m
+	$(AVRDUDE) -U lfuse:w:0x62:m -U hfuse:w:0xdf:m
 
 read:   readback.hex
 
 readback.hex:
-	$(AVRDUDE) -U flash:r:readback.hex
+	$(AVRDUDE) -U flash:r:readback.hex:r
 
 read:
 	$(AVRDUDE) -U eeprom:r:eeprom.raw:r -u

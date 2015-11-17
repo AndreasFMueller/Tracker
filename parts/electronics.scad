@@ -140,12 +140,12 @@ module top_part() {
 module button() {
 	difference() {
 		union() {
-			translate([0, 0, -1])
-				cylinder(r = 3, h = top_height, center = true, $fn = 20);
+			translate([0, 0, -2])
+				cylinder(r = 3, h = top_height, center = true, $fn = 40);
 			translate([0, 0, 1])
-				cylinder(r = 4, h = top_height - 4, center = true, $fn = 20);
+				cylinder(r = 4, h = top_height - 4, center = true, $fn = 40);
 			translate([0, 0, -(top_height - 4) / 2])
-				cylinder(r1 = 2, r2 = 4, h = 2, center = true, $fn = 20);
+				cylinder(r1 = 2, r2 = 4, h = 2, center = true, $fn = 40);
 		}
 		translate([-switchwidth/2 + 4, 0, top_height - switchheight])
 			cube([10, 10, top_height], center = true);
