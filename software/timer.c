@@ -208,8 +208,6 @@ static void	timer_set(unsigned short speed, unsigned short direction) {
  * any other place than from the interrupt handler
  */
 static inline void	timer_update() {
-	PORTB &= ~_BV(PINB2);
-	PORTB |= _BV(PINB2);
 	// if the current speed is 0, then we can switch direction and mode
 	// possibly the speed mode
 	if (0 == current_speed) {
@@ -227,20 +225,8 @@ static inline void	timer_update() {
 
 		// do the first step in the direction of the target speed
 		timer_set(speed_step, target_direction);
-if (current_speed) {
-	PORTB &= ~_BV(PINB2);
-	PORTB |= _BV(PINB2);
-	PORTB &= ~_BV(PINB2);
-	PORTB |= _BV(PINB2);
-} else {
-	PORTB &= ~_BV(PINB2);
-	PORTB |= _BV(PINB2);
-}
 		return;
 	}
-
-	PORTB &= ~_BV(PINB2);
-	PORTB |= _BV(PINB2);
 
 	// handle slow down: we are in slow down if the target
 	// direction is different from the current direction.
@@ -260,23 +246,11 @@ if (current_speed) {
 		}
 		return;
 	}
-	PORTB &= ~_BV(PINB2);
-	PORTB |= _BV(PINB2);
 
 	// if the current speed is the same as the target speed, then there
 	// is no need for an update
 	if ((current_speed == target_speed)
 		&& (current_direction == target_direction)) {
-	PORTB &= ~_BV(PINB2);
-volatile unsigned char l = OCR1C;
-while (l--) {
-}
-PORTB |= _BV(PINB2);
-l = 85;
-PORTB &= ~_BV(PINB2);
-while (l--) {
-}
-PORTB |= _BV(PINB2);
 		return;
 	}
 
