@@ -72,6 +72,13 @@ static unsigned char	speed_mode = MODE_SLOW;
 
 const unsigned short	tracking_speed PROGMEM = COUNTS_PER_MICROSTEP;
 
+#define TRACKING_MODE	0
+#define REWIND_MODE	1
+/**
+ * \brief 
+ */
+static volatile unsigned char	mode = 0;
+
 /*
  * The following variables are used to implement ramping up and down
  * speed and reversing the direction.
@@ -286,10 +293,14 @@ static inline void	button_update() {
 		if (track_button_state != s) {
 			debounce_counters[0] = DEBOUNCE_TIME;
 			track_button_state = s;
+			if (mode == TRACKING_MODE) {
+				return;
+			}
 			if (track_button_state) {
 				speed_mode = MODE_SLOW;
 				timer_speed(SPEED_TRACKING, DIRECTION_FORWARD);
 				slowdown = 1;
+				mode = TRACKING_MODE;
 			}
 		}
 	}
@@ -301,10 +312,14 @@ static inline void	button_update() {
 		if (rewind_button_state != s) {
 			debounce_counters[1] = DEBOUNCE_TIME;
 			rewind_button_state = s;
+			if (mode == REWIND_MODE) {
+				return;
+			}
 			if (rewind_button_state) {
 				speed_mode = MODE_FAST;
 				timer_speed(SPEED_REWIND, DIRECTION_BACKWARD);
 				slowdown = 1;
+				mode = REWIND_MODE;
 			}
 		}
 	}
@@ -316,10 +331,6 @@ static inline void	button_update() {
  * stepper motor
  */
 ISR(TIMER0_COMPA_vect) {
-#if 0
-	PORTB &= ~_BV(PINB2);
-	PORTB |= _BV(PINB2);
-#endif
 	button_update();
 	timer_update();
 	wdt_reset();
