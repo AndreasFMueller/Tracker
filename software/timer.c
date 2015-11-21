@@ -272,12 +272,36 @@ static inline void	timer_update() {
 	}
 }
 
-#define DEBOUNCE_TIME	2
+#define DEBOUNCE_TIME	5
 
-static unsigned char	debounce_counters[2] = { 0, 0 };
+static signed char	debounce_counters[2] = { 0, 0 };
 
 static inline unsigned char	toggle(unsigned char x) {
 	return (x) ? 0 : 1;
+}
+
+static inline void	track_button_action() {
+	// if we are already in tracking mode, stop tracking
+	if (mode == TRACKING_MODE) {
+		mode = STOP_MODE;
+		timer_stop();
+		return;
+	}
+	// start tracking
+	speed_mode = MODE_SLOW;
+	timer_speed(SPEED_TRACKING, DIRECTION_FORWARD);
+	slowdown = 1;
+	mode = TRACKING_MODE;
+}
+
+static inline void	rewind_button_action() {
+	if (mode == REWIND_MODE) {
+		return;
+	}
+	speed_mode = MODE_FAST;
+	timer_speed(SPEED_REWIND, DIRECTION_BACKWARD);
+	slowdown = 1;
+	mode = REWIND_MODE;
 }
 
 /*
@@ -286,41 +310,50 @@ static inline unsigned char	toggle(unsigned char x) {
  * 
  */
 static inline void	button_update() {
-	if (debounce_counters[0]) {
+	// start checking the track button
+	if (debounce_counters[0] > 0) {
+		// ignore state changes on the track button while the
+		// debounce counter is nonzero
 		--debounce_counters[0];
-		// ignore state changes on the track button
 	} else {
+		// debouncing has been completed, so we check whether
+		// the state is stable
 		unsigned char	s = button_state(BUTTON_TRACK);
 		if (track_button_state != s) {
+			// state has changed, so we start debouncing
 			debounce_counters[0] = DEBOUNCE_TIME;
+			// when we get to this place next time, we expect
+			// to see the same value
 			track_button_state = s;
-			if (mode == TRACKING_MODE) {
-				return;
-			}
-			if (track_button_state) {
-				speed_mode = MODE_SLOW;
-				timer_speed(SPEED_TRACKING, DIRECTION_FORWARD);
-				slowdown = 1;
-				mode = TRACKING_MODE;
+		} else {
+			// if the state has not changed, so we assume now
+			// that the button state has stabilized, and assume
+			// the value currently in track_button_state
+			if (debounce_counters[0] == 0) {
+				if (track_button_state) {
+					track_button_action();
+				}
+				// we set the debounce counter to -1 to
+				// indicate that we have already taken the
+				// action associated with this button state
+				// transition
+				debounce_counters[0] = -1;
 			}
 		}
 	}
-	if (debounce_counters[1]) {
+	if (debounce_counters[1] > 0) {
 		--debounce_counters[1];
-		// ignore state changes on the rewind button
 	} else {
 		unsigned char	s = button_state(BUTTON_REWIND);
 		if (rewind_button_state != s) {
 			debounce_counters[1] = DEBOUNCE_TIME;
 			rewind_button_state = s;
-			if (mode == REWIND_MODE) {
-				return;
-			}
-			if (rewind_button_state) {
-				speed_mode = MODE_FAST;
-				timer_speed(SPEED_REWIND, DIRECTION_BACKWARD);
-				slowdown = 1;
-				mode = REWIND_MODE;
+		} else {
+			if (debounce_counters[1] == 0) {
+				if (rewind_button_state) {
+					rewind_button_action();
+				}
+				debounce_counters[1] = -1;
 			}
 		}
 	}
