@@ -57,7 +57,7 @@ static unsigned char	speed_mode = MODE_SLOW;
 #define PRESCALER_SLOW	128
 
 #define	MICROSTEPS	16
-#define	STEPS_PER_TURN	180
+#define	STEPS_PER_TURN	200
 
 #define	BARN_DOOR_RADIUS	228
 #define	BARN_DOOR_INCREMENT	0.8
@@ -70,10 +70,11 @@ static unsigned char	speed_mode = MODE_SLOW;
 #define	COUNTS_PER_SECOND	(F_CPU / PRESCALER_SLOW)
 #define	COUNTS_PER_MICROSTEP	(COUNTS_PER_SECOND / (MICROSTEPS_PER_SECOND))
 
-const unsigned short	tracking_speed PROGMEM = COUNTS_PER_MICROSTEP;
+const unsigned short	tracking_speed = COUNTS_PER_MICROSTEP;
 
 #define TRACKING_MODE	0
 #define REWIND_MODE	1
+#define STOP_MODE	2
 /**
  * \brief 
  */

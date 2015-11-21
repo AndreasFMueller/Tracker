@@ -11,7 +11,7 @@ i.e. at about 400 steps per second.
 
 The pitch of the screw is 0.7mm per turn. For a radius of 250mm,
 we have to rotate the screw at a speed of 0.0259721614 rotations
-per second. NMEA-17 motors typically have 200 steps per revolution,
+per second. NEMA-17 motors typically have 200 steps per revolution,
 thus the driver must step the motor at 5.1944 steps per seccond.
 
 The stepper drivers are configured for 16th step microstepping,
