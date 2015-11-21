@@ -6,15 +6,13 @@
 #ifndef _timer_h
 #define _timer_h
 
-#include <avr/pgmspace.h>
-
 /**
  * \brief EEPROM memory location for the tracking speed
  *
  * The tracking speed below is given in Hz. See the README for how we arrived
  * at these values.
  */
-extern const unsigned short	tracking_speed PROGMEM;
+extern volatile unsigned short	tracking_speed;
 
 /**
  * \brief The tracking speed value

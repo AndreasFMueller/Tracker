@@ -19,6 +19,34 @@ which means that in slow speed, pulses at 83.1Hz are needed, and
 in fast speed, we attempt to move the motor at 400 steps per second,
 i.e.  with a frequence of 6.4kHz.
 
+Frequency computation
+---------------------
 
+The tracker hardware this controller was built for has a barn door radius
+of 228mm, and uses an M4 screw, with an increment of 0.7mm per turn.
+The motor has 200 steps per revolution, and the stepper driver is
+wired for 16th-stepping.
+
+The following code can be fed into the bc calculator program to
+compute the parameters for the stepper motor:
+
+   barn_door_radius = 228
+   increment_per_turn = 0.7
+   steps_per_turn = 200
+   microsteps = 16
+   prescaler_slow = 64
+   f_cpu = 1000000
+
+   pi = 4 * a(1)
+
+   angle_per_turn = increment_per_turn / barn_door_radius
+   angle_per_second = 2 * pi / 86164
+   turns_per_second = angle_per_second / angle_per_turn
+   steps_per_second = steps_per_turn * turns_per_second
+   microsteps_per_second = microsteps * steps_per_second
+   counts_per_second = f_cpu / prescaler_slow
+   counts_per_microstep = counts_per_second / microsteps_per_second
+    
+   
 
 

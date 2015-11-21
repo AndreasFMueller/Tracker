@@ -44,33 +44,33 @@ static unsigned char	speed_mode = MODE_SLOW;
  * repeatedly change the value. The parameters in the following two constants
  * select CTC.
  * The fast mode uses the prescaler 1, while the slow mode uses prescaler 
- * 64. Note that the PRESCALER_FAST and PRESCALER_SLOW constants below
+ * 32. Note that the PRESCALER_FAST and PRESCALER_SLOW constants below
  * use values one power higher, because the number of compare matches per
  * second is the number of state changes per second, and that is twice
  * the number of pulses that we want to send to the Pololu driver.
  */
 #define TIMER_STOP	(1 << CTC1) | (0 << COM1A0) | ( 0 << CS10)
 #define TIMER_FAST	(1 << CTC1) | (0 << COM1A0) | ( 1 << CS10)
-#define TIMER_SLOW	(1 << CTC1) | (0 << COM1A0) | ( 7 << CS10)
+#define TIMER_SLOW	(1 << CTC1) | (0 << COM1A0) | ( 6 << CS10)
 
 #define	PRESCALER_FAST	2
-#define PRESCALER_SLOW	128
+#define PRESCALER_SLOW	64
 
 #define	MICROSTEPS	16
 #define	STEPS_PER_TURN	200
 
 #define	BARN_DOOR_RADIUS	228
-#define	BARN_DOOR_INCREMENT	0.8
+#define	BARN_DOOR_INCREMENT	0.7
 
 #define	ANGLE_PER_TURN		(BARN_DOOR_INCREMENT / BARN_DOOR_RADIUS)
-#define	ANGLE_PER_SECOND	(2 * M_PI / 86400)
+#define	ANGLE_PER_SECOND	(2 * M_PI / 86164)
 #define	TURNS_PER_SECOND	(ANGLE_PER_SECOND / ANGLE_PER_TURN)
 #define STEPS_PER_SECOND	(STEPS_PER_TURN * TURNS_PER_SECOND)
 #define	MICROSTEPS_PER_SECOND	(MICROSTEPS * STEPS_PER_SECOND)
 #define	COUNTS_PER_SECOND	(F_CPU / PRESCALER_SLOW)
-#define	COUNTS_PER_MICROSTEP	(COUNTS_PER_SECOND / (MICROSTEPS_PER_SECOND))
+#define	COUNTS_PER_MICROSTEP	(COUNTS_PER_SECOND / MICROSTEPS_PER_SECOND)
 
-const unsigned short	tracking_speed = COUNTS_PER_MICROSTEP;
+volatile unsigned short	tracking_speed = MICROSTEPS_PER_SECOND;
 
 #define TRACKING_MODE	0
 #define REWIND_MODE	1
