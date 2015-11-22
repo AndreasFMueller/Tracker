@@ -159,9 +159,9 @@ static void	timer_setup() {
 	TIMSK |= _BV(OCIE0A); // enable timer interrupt
 
 	/*
-	 * turn B4 into an output
+	 * turn B4=OC1B into an output
 	 */
-	PORTB |= _BV(PORTB4);   // high
+	PORTB |= _BV(PORTB4);   // high, i.e. dark LED
         DDRB |= _BV(DDB4);	// ensure port B4 is an output
 }
 
@@ -173,6 +173,8 @@ static void	timer_setup() {
  */
 void	timer_start() {
 	TCCR1 = (speed_mode == MODE_FAST) ? TIMER_FAST : TIMER_SLOW;
+	GTCCR = (1 << COM1B0);	// toggle timer again, this also lights
+				// the drive LED
 }
 
 /**
@@ -181,7 +183,9 @@ void	timer_start() {
  * The TIMER_STOP timer configuration value stops the timer
  */ 
 void	timer_stop() {
+	GTCCR = (0 << COM1B0);	// disconnect OC1B
 	TCCR1 = TIMER_STOP;	// timer stopped
+	PORTB |= _BV(PORTB4);   // high, turns of drive LED
 }
 
 /**
@@ -316,6 +320,19 @@ static inline void	rewind_button_action() {
 	mode = REWIND_MODE;
 }
 
+typedef void (*action_t)(void);
+
+/**
+ * \brief Action function pointers array
+ */
+action_t	action_functions[2] = {
+			track_button_action,
+			rewind_button_action
+		};
+
+/**
+ * \brief Update a particular button
+ */
 static inline void button_update1(unsigned button) {
 	// start checking the track button
 	if (debounce_counters[button] > 0) {
@@ -338,14 +355,7 @@ static inline void button_update1(unsigned button) {
 			// the value currently in track_button_state
 			if (debounce_counters[button] == 0) {
 				if (button_states[button]) {
-					switch (button) {
-					case BUTTON_TRACK:
-						track_button_action();
-						break;
-					case BUTTON_REWIND:
-						rewind_button_action();
-						break;
-					}
+					action_functions[button]();
 				}
 				// we set the debounce counter to -1 to
 				// indicate that we have already taken the
