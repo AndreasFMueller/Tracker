@@ -17,11 +17,12 @@
  * \brief Main function for the tracker
  */
 int	main(int argc, char *argv[]) {
-	// turn on the direction LED
-	PORTB &= ~_BV(PORTB2);
-
-	// wait one second, then read the button state
-	_delay_ms(1000);
+	// blink the direction LED for a second
+	direction_led(0);
+	for (unsigned char i = 0; i < 10; i++) {
+		_delay_ms(100);
+		direction_toggle();
+	}
 
 	// check whether a button is pressed, which would mean that
 	// we start up in southern hemisphere mode
@@ -33,6 +34,12 @@ int	main(int argc, char *argv[]) {
 		case DIRECTION_BACKWARD:
 			direction_default(DIRECTION_FORWARD);
 			break;
+		}
+
+		// indicate that we are changing the default direction
+		for (unsigned char i = 0; i < 20; i++) {
+			_delay_ms(50);
+			direction_toggle();
 		}
 	}
 

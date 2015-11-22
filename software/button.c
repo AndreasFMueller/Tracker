@@ -6,15 +6,7 @@
 #include <button.h>
 #include <avr/io.h>
 
-/**
- * \brief global variable to store current track button state
- */
-unsigned char   track_button_state = 0;
-
-/**
- * \brief global variable to store current rewind button state
- */
-unsigned char   rewind_button_state = 0;
+unsigned char	button_states[2] = { 0 /* track */, 0 /* rewind */ };
 
 /*
  * button_setup is supposed to be a constructor to be called automatically

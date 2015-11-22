@@ -76,7 +76,12 @@ volatile unsigned short	tracking_speed = MICROSTEPS_PER_SECOND;
 #define REWIND_MODE	1
 #define STOP_MODE	2
 /**
- * \brief 
+ * \brief The current motor mode
+ *
+ * There are three modes: TRACKING_MODE = the tracker moves at exactly
+ * one revolution per sidereal day, REWIND_MODE = the tracker rewinds
+ * at the maximum speed the stepper motor can handle 400 steps per second,
+ * STOP_MODE = the tracker does not move at all.
  */
 static volatile unsigned char	mode = 0;
 
@@ -213,7 +218,8 @@ static void	timer_set(unsigned short speed, unsigned short direction) {
  * Timer related work to be done during the tiemr interrupt
  *
  * This is an inline function because there is no need to call it from
- * any other place than from the interrupt handler
+ * any other place than from the interrupt handler. Inlining it saves
+ * a lot of stack space
  */
 static inline void	timer_update() {
 	// if the current speed is 0, then we can switch direction and mode
@@ -280,6 +286,9 @@ static inline unsigned char	toggle(unsigned char x) {
 	return (x) ? 0 : 1;
 }
 
+/**
+ * \brief What to do when the track button is pressed
+ */
 static inline void	track_button_action() {
 	// if we are already in tracking mode, stop tracking
 	if (mode == TRACKING_MODE) {
@@ -294,6 +303,9 @@ static inline void	track_button_action() {
 	mode = TRACKING_MODE;
 }
 
+/**
+ * \brief What to do when the rewind button is pressed
+ */
 static inline void	rewind_button_action() {
 	if (mode == REWIND_MODE) {
 		return;
@@ -304,59 +316,55 @@ static inline void	rewind_button_action() {
 	mode = REWIND_MODE;
 }
 
-/*
- * The button related work to be done during the timer interrupt
- * 
- * 
- */
-static inline void	button_update() {
+static inline void button_update1(unsigned button) {
 	// start checking the track button
-	if (debounce_counters[0] > 0) {
+	if (debounce_counters[button] > 0) {
 		// ignore state changes on the track button while the
 		// debounce counter is nonzero
-		--debounce_counters[0];
+		--debounce_counters[button];
 	} else {
 		// debouncing has been completed, so we check whether
 		// the state is stable
-		unsigned char	s = button_state(BUTTON_TRACK);
-		if (track_button_state != s) {
+		unsigned char	s = button_state(button);
+		if (button_states[button] != s) {
 			// state has changed, so we start debouncing
-			debounce_counters[0] = DEBOUNCE_TIME;
+			debounce_counters[button] = DEBOUNCE_TIME;
 			// when we get to this place next time, we expect
 			// to see the same value
-			track_button_state = s;
+			button_states[button] = s;
 		} else {
 			// if the state has not changed, so we assume now
 			// that the button state has stabilized, and assume
 			// the value currently in track_button_state
-			if (debounce_counters[0] == 0) {
-				if (track_button_state) {
-					track_button_action();
+			if (debounce_counters[button] == 0) {
+				if (button_states[button]) {
+					switch (button) {
+					case BUTTON_TRACK:
+						track_button_action();
+						break;
+					case BUTTON_REWIND:
+						rewind_button_action();
+						break;
+					}
 				}
 				// we set the debounce counter to -1 to
 				// indicate that we have already taken the
 				// action associated with this button state
 				// transition
-				debounce_counters[0] = -1;
+				debounce_counters[button] = -1;
 			}
 		}
 	}
-	if (debounce_counters[1] > 0) {
-		--debounce_counters[1];
-	} else {
-		unsigned char	s = button_state(BUTTON_REWIND);
-		if (rewind_button_state != s) {
-			debounce_counters[1] = DEBOUNCE_TIME;
-			rewind_button_state = s;
-		} else {
-			if (debounce_counters[1] == 0) {
-				if (rewind_button_state) {
-					rewind_button_action();
-				}
-				debounce_counters[1] = -1;
-			}
-		}
-	}
+}
+
+/**
+ * \brief Button update method called from the timer interrupt
+ *
+ * The button related work to be done during the timer interrupt
+ */
+static inline void	button_update() {
+	button_update1(BUTTON_TRACK);
+	button_update1(BUTTON_REWIND);
 }
 
 /*

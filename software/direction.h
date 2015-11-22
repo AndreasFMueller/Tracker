@@ -25,6 +25,8 @@
 
 extern void	direction_default(unsigned char direction);
 extern void	direction_set(unsigned char direction);
+extern void	direction_led(unsigned char on_not_off);
+extern void	direction_toggle();
 
 #endif /* _direction_h */
 

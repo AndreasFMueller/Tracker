@@ -15,8 +15,10 @@
  */
 #define BUTTON_REWIND	PINB1
 
-extern unsigned char   track_button_state;
-extern unsigned char   rewind_button_state;
+extern unsigned char	button_states[2];
+
+#define track_button_state button_states[0]
+#define rewind_button_state button_states[1]
 
 extern unsigned char button_state(unsigned char button);
 

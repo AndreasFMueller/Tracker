@@ -45,6 +45,26 @@ void	direction_default(unsigned char direction) {
 }
 
 /**
+ * \brief Turn the direction LED/pin on or off
+ */
+void	direction_led(unsigned char on_not_off) {
+	if (on_not_off) {
+		// set direction pin to 0
+		PORTB &= ~_BV(PORTB2);	// output low
+	} else {
+		// set direction pin to 1
+		PORTB |= _BV(PORTB2);	// output high
+	}
+}
+
+/**
+ * \brief toggle the direction LED/pin
+ */
+void	direction_toggle() {
+	direction_led(!(PORTB & _BV(PORTB2)));
+}
+
+/**
  * \brief Set the direction
  *
  * Setting the direction depends on the default direction. If the default
@@ -78,13 +98,8 @@ void	direction_set(unsigned char direction) {
 		}
 		break;
 	}
-	if (current_direction) {
-		// set direction pin to 0
-		PORTB &= ~_BV(PORTB2);	// output low
-	} else {
-		// set direction pin to 1
-		PORTB |= _BV(PORTB2);	// output high
-	}
+	// set the value
+	direction_led(current_direction);
 }
 
 
