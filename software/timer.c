@@ -141,7 +141,7 @@ static void	timer_setup() {
 	TCNT1 = 0;
 	OCR1C = 255; // slowest speed
 	OCR1B = 0; // 
-	GTCCR = (1 << COM1B0); // toggle OC1B each time the timer is reset
+	GTCCR = (0 << COM1B0); // toggle OC1B each time the timer is reset
 			       // to zero (CTC)
 	TCCR1 = TIMER_STOP; // timer stopped
 
