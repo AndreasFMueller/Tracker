@@ -5,6 +5,7 @@
 #
 SOURCES =	tracker-B_Cu.gbl tracker-B_Mask.gbs \
 		tracker-F_Cu.gtl tracker-F_Mask.gts  \
+		tracker-Edge_Cuts.gbr \
 		tracker.drl
 
 tracker.zip:	$(SOURCES)
