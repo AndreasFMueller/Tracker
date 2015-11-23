@@ -50,10 +50,10 @@ void	direction_default(unsigned char direction) {
 void	direction_led(unsigned char on_not_off) {
 	if (on_not_off) {
 		// set direction pin to 0
-		PORTB &= ~_BV(PORTB2);	// output low
+		PORTB &= ~_BV(PORTB2);	// output low, led on
 	} else {
 		// set direction pin to 1
-		PORTB |= _BV(PORTB2);	// output high
+		PORTB |= _BV(PORTB2);	// output high, led off
 	}
 }
 
@@ -61,7 +61,7 @@ void	direction_led(unsigned char on_not_off) {
  * \brief toggle the direction LED/pin
  */
 void	direction_toggle() {
-	direction_led(!(PORTB & _BV(PORTB2)));
+	direction_led((PORTB & _BV(PORTB2)));
 }
 
 /**
