@@ -1,4 +1,4 @@
-Cmp-Mod V01 Created by CvPcb (2013-jul-07)-stable date = Tue 21 Jul 2015 09:22:18 PM CEST
+Cmp-Mod V01 Created by CvPcb (2013-jul-07)-stable date = jeu. 13 août 2015 16:33:26 CEST
 
 BeginCmp
 TimeStamp = /55ABA96C;
@@ -12,13 +12,6 @@ TimeStamp = /55ABA9B2;
 Reference = C2;
 ValeurCmp = 0.1uF;
 IdModule  = SM0603_Capa;
-EndCmp
-
-BeginCmp
-TimeStamp = /55ABB7C1;
-Reference = D1;
-ValeurCmp = DIODE;
-IdModule  = SM1206;
 EndCmp
 
 BeginCmp
@@ -50,10 +43,10 @@ IdModule  = pin_array_3x2;
 EndCmp
 
 BeginCmp
-TimeStamp = /55ABB7B2;
+TimeStamp = /55CC91EB;
 Reference = P3;
-ValeurCmp = Logic Power;
-IdModule  = PIN_ARRAY_2X1;
+ValeurCmp = GND;
+IdModule  = PIN_ARRAY_1;
 EndCmp
 
 BeginCmp
@@ -85,20 +78,6 @@ IdModule  = SM0603;
 EndCmp
 
 BeginCmp
-TimeStamp = /55AE8C29;
-Reference = R3;
-ValeurCmp = 10k;
-IdModule  = SM0603;
-EndCmp
-
-BeginCmp
-TimeStamp = /55AE8C38;
-Reference = R4;
-ValeurCmp = 10k;
-IdModule  = SM0603;
-EndCmp
-
-BeginCmp
 TimeStamp = /55AE8C10;
 Reference = SW1;
 ValeurCmp = Direction;
@@ -123,7 +102,7 @@ BeginCmp
 TimeStamp = /55ABA5C6;
 Reference = U2;
 ValeurCmp = ATTINY85;
-IdModule  = SO8N;
+IdModule  = SOIC8W;
 EndCmp
 
 BeginCmp
